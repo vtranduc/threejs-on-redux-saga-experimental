@@ -31,12 +31,32 @@ export class SceneController {
 
   private addLight() {
     const ambient = new THREE.AmbientLight(undefined, 0.5);
-    const directional = new THREE.DirectionalLight();
-    directional.position.set(5, 5, 5);
     this.designateIsSetup(ambient);
-    this.designateIsSetup(directional);
     this.scene.add(ambient);
-    this.scene.add(directional);
+
+    const directional1 = new THREE.DirectionalLight();
+    directional1.position.set(50, 50, 50);
+    this.designateIsSetup(directional1);
+    directional1.lookAt(0, 0, 0);
+    this.scene.add(directional1);
+
+    const directional2 = new THREE.DirectionalLight();
+    directional2.position.set(-50, 50, 50);
+    this.designateIsSetup(directional2);
+    directional2.lookAt(0, 0, 0);
+    this.scene.add(directional2);
+
+    const directional3 = new THREE.DirectionalLight();
+    directional3.position.set(50, 50, -50);
+    this.designateIsSetup(directional3);
+    directional3.lookAt(0, 0, 0);
+    this.scene.add(directional3);
+
+    const directional4 = new THREE.DirectionalLight();
+    directional4.position.set(-50, 50, -50);
+    this.designateIsSetup(directional4);
+    directional4.lookAt(0, 0, 0);
+    this.scene.add(directional4);
   }
 
   private animate() {
@@ -47,6 +67,10 @@ export class SceneController {
 
   private designateIsSetup(object: Object3D) {
     object.userData.isSetup = true;
+  }
+
+  private isSetup(object: Object3D) {
+    return !!object.userData.isSetup;
   }
 
   public appendToDiv(div: HTMLDivElement) {
@@ -72,7 +96,7 @@ export class SceneController {
 
   public clear() {
     this.scene.children
-      .filter((object) => !object.userData.isSetup)
+      .filter((object) => !this.isSetup(object))
       .forEach((object) => this.scene.remove(object));
   }
 }

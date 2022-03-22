@@ -50,7 +50,7 @@ export function DragAndDrop({ children, style }: ContainerProps) {
 
   const combinedStyle = useMemo(() => {
     return {
-      ...{ width: "100%", height: "100%", border: "red 5px solid" },
+      ...{ width: "100%", height: "100%" },
       ...style,
     };
   }, [style]);
