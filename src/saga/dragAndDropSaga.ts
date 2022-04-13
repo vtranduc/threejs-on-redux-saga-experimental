@@ -16,7 +16,11 @@ function* setFilesSaga({ payload }: PayloadAction<File[]>) {
     yield put(clearBlobs());
     return;
   }
+
   const file = payload[0];
+
+  console.log("show the file obtained: ", file);
+
   const ext = getEXT(file.name);
   if (!ext) {
     yield put(clearBlobs());

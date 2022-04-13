@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import * as THREE from "three";
 import { DragAndDrop } from "./components";
-import { RootState, appendToDiv, removeFromDiv, add, clear } from "./reducers";
+import { RootState, add, clear } from "./reducers";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { EXT, LoaderType } from "./types";
+import { useAppendToDiv } from "./customHooks";
 
 function App() {
   const dispatch = useDispatch();
@@ -22,22 +23,21 @@ function App() {
     } as Record<EXT, LoaderType>;
   }, []);
 
-  useEffect(() => {
-    const div = sceneContainer.current;
-    if (!div) return;
-    dispatch(appendToDiv(div));
-    return () => {
-      dispatch(removeFromDiv(div));
-    };
-  }, [sceneContainer, dispatch]);
+  useAppendToDiv(sceneContainer);
 
   useEffect(() => {
     if (!ext) return;
     const blob = blobs[0];
     dispatch(clear());
     const onError = () => console.log("Error loading the file!");
-    const onLoad = (model: THREE.Group | GLTF) =>
-      dispatch(add(model instanceof THREE.Group ? model : model.scene));
+    const onLoad = (model: THREE.Group | GLTF) => {
+      const object = model instanceof THREE.Group ? model : model.scene;
+      object.traverse((obj) => {
+        obj.receiveShadow = true;
+        obj.castShadow = true;
+      });
+      dispatch(add(object));
+    };
     loaders[ext].load(blob, onLoad, undefined, onError);
   }, [blobs, loaders, dispatch, ext]);
 

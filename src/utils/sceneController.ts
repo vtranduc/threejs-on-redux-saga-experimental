@@ -12,12 +12,18 @@ export class SceneController {
   );
   private renderer = new THREE.WebGLRenderer();
   private controls = new OrbitControls(this.camera, this.renderer.domElement);
+  private lightAngle = 0;
+  private orbitLight: THREE.DirectionalLight;
 
   constructor() {
     this.addGrid();
     this.addLight();
+    this.orbitLight = this.getDirectionalLight();
+    this.updateLightAngle();
+    this.scene.add(this.orbitLight);
     this.camera.position.set(0, 5, 5);
     this.renderer.setClearColor(0xf0f5f5);
+    this.renderer.shadowMap.enabled = true;
     this.controls.update();
     this.animate = this.animate.bind(this);
     this.animate();
@@ -29,38 +35,32 @@ export class SceneController {
     this.scene.add(grid);
   }
 
+  private getDirectionalLight() {
+    const directional = new THREE.DirectionalLight();
+    directional.castShadow = true;
+    this.designateIsSetup(directional);
+    directional.lookAt(0, 0, 0);
+    return directional;
+  }
+
+  private updateLightAngle() {
+    this.lightAngle = (this.lightAngle + 0.01) % (2 * Math.PI);
+    this.orbitLight.position.set(
+      50 * Math.cos(this.lightAngle),
+      25,
+      50 * Math.sin(this.lightAngle)
+    );
+  }
+
   private addLight() {
     const ambient = new THREE.AmbientLight(undefined, 0.5);
     this.designateIsSetup(ambient);
     this.scene.add(ambient);
-
-    const directional1 = new THREE.DirectionalLight();
-    directional1.position.set(50, 50, 50);
-    this.designateIsSetup(directional1);
-    directional1.lookAt(0, 0, 0);
-    this.scene.add(directional1);
-
-    const directional2 = new THREE.DirectionalLight();
-    directional2.position.set(-50, 50, 50);
-    this.designateIsSetup(directional2);
-    directional2.lookAt(0, 0, 0);
-    this.scene.add(directional2);
-
-    const directional3 = new THREE.DirectionalLight();
-    directional3.position.set(50, 50, -50);
-    this.designateIsSetup(directional3);
-    directional3.lookAt(0, 0, 0);
-    this.scene.add(directional3);
-
-    const directional4 = new THREE.DirectionalLight();
-    directional4.position.set(-50, 50, -50);
-    this.designateIsSetup(directional4);
-    directional4.lookAt(0, 0, 0);
-    this.scene.add(directional4);
   }
 
   private animate() {
     requestAnimationFrame(this.animate);
+    this.updateLightAngle();
     this.renderer.render(this.scene, this.camera);
     this.controls.update();
   }
@@ -87,6 +87,8 @@ export class SceneController {
   }
 
   public add(object: THREE.Object3D) {
+    console.log("show object being added here: ", object);
+
     this.scene.add(object);
   }
 
@@ -97,6 +99,6 @@ export class SceneController {
   public clear() {
     this.scene.children
       .filter((object) => !this.isSetup(object))
-      .forEach((object) => this.scene.remove(object));
+      .forEach((object) => this.remove(object));
   }
 }
